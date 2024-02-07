@@ -1,5 +1,7 @@
+from asyncio import sleep
+
 from datetime import datetime
-from time import sleep
+import threading
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -19,20 +21,21 @@ class HoraCertaModel(BaseModel):
 
 @app.get('/')
 async def ola_mundo():
+    print(f'Thread: {threading.get_native_id()}')
     return 'Olá Mundo!'
 
 
 @app.get('/hora_certa', response_model=HoraCertaModel, description='Informa a hora certa')
-def hora_certa():
-    print(f'Informando a hora certa - {datetime.now().isoformat()}', flush=True)
-    sleep(10)
+async def hora_certa():
+    print(f'Informando a hora certa - Thread: {threading.get_native_id()}')
+    await sleep(10)
     return HoraCertaModel()
 
 
 @app.get('/pagina_web', response_class=HTMLResponse)
-async def pagina_web():
+def pagina_web():
     return '<html><body><h1>Olá Mundo!</h1></body></html>'
 
 
 if __name__ == '__main__':
-    run(app, host='0.0.0.0', port=8080, workers=1)
+    run(app, host='0.0.0.0', port=8080)
